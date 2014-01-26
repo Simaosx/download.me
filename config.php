@@ -8,3 +8,4 @@ $uploadDir = 'uploads';
 
 $domainName = "download.me";
 $filesPerPage = 30;
+$maxFileSize = 50000000;

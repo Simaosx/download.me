@@ -2,9 +2,9 @@
 error_reporting(-1);
 mb_internal_encoding('utf-8');
 
-require 'slim/Slim/Slim.php';
+require 'vendor/slim/Slim/Slim.php';
 require 'config.php';
-require 'getid3/getid3.php';
+require 'vendor/getid3/getid3.php';
 spl_autoload_register(function ($class) {
   if (!preg_match("/\\\/ui", $class))
     require_once 'lib\\/' . $class . '.php';
@@ -17,7 +17,9 @@ $app = new \Slim\Slim( array(
     'dbSettings' => $database,
     'uploadDir' => $uploadDir,
     'domainName' => $domainName,
-    'filesPerPage' => $filesPerPage
+    'filesPerPage' => $filesPerPage,
+    'maxFileSize' => $maxFileSize
+    //'debug' => false
     ));
 
 function h($text) {
@@ -60,13 +62,16 @@ $app->container->singleton('SearchGateway', function() use ($app) {
 });
 
 $app->get('/', function () use ($app) {
+  session_start();
+  $flash = $_SESSION['slim.flash'];
     $app->render('frontpage.phtml', array(
-        "errorMessage" => "",
-        "title" => "Download.me - файлообменник"
+        "flash" => $flash,
+        "title" => "Download.me - файлообменник",
+        "maxFileSize" => $app->config('maxFileSize') 
         ));
 });
 
-$app->post('/upload(/:async)', function ($async) use ($app) {
+$app->post('/upload(/:async)', function ($async=false) use ($app) {
 
     $uploader = new Uploader($app->config('uploadDir'), $app->FileGateway);
     $id = $uploader->uploadFile($_FILES);
@@ -78,10 +83,8 @@ $app->post('/upload(/:async)', function ($async) use ($app) {
       echo json_encode(array(
         'id' => $id));
      } elseif (!$id && !$async) {
-    $app->render('frontpage.phtml', array(
-    'errorMessage' => $uploader->getError(),
-    'title' => 'Download.me'
-    ));
+    $app->flash('error', $uploader->getError());
+    $app->response->redirect('/', 303);
     }
 });
 
@@ -111,10 +114,7 @@ $app->get('/f/thumb/:res/:mode/:src+', function ($res, $mode, $src) use ($app) {
     $thumbName = $origDir . "/thumb-{$res}-{$mode}-{$origName}";
     if (file_exists($thumbName)) {
         $info = getimagesize($thumbName);
-        //var_dump($info[2]);
-        //exit();
         MyPreviewThumbnail::sendHeader($info[2]);
-        //header('Content-Type: image/jpeg');
         readfile($thumbName);
     } else {
       try {
@@ -128,7 +128,9 @@ $app->get('/f/thumb/:res/:mode/:src+', function ($res, $mode, $src) use ($app) {
     });
 
 $app->get('/f/:id', function ($id) use ($app) {
-   // try {
+  session_start();
+  $flash = $_SESSION['slim.flash'];
+  //var_dump($flash);
     $file = $app->FileGateway->getData($id);
     $comments = $app->CommentGateway->getAllFileComments($id);
     if($file) {
@@ -136,37 +138,21 @@ $app->get('/f/:id', function ($id) use ($app) {
           'file' => $file,
           'title' => $file->name,
           'comments' => $comments,
-          'app' => $app
+          'app' => $app,
+          'flash' => $flash
          ));
     } else {
         $app->notFound();
     }
-    /*} catch(Exception $e) {
-        echo $e->getMessage();
-
-        $app->render('errorpage.html', array(
-            'title' => 'Ошибка',
-            'message' => ''
-            ));
-    }
-    */
 });
 
 $app->get('/files(/:page)', function ($page=1) use ($app) {
-  //$filesPerPage = 100;
   $num = 100;
-  //$pages = ceil($num/$filesPerPage);
-  //$startPoint = ($page-1) * $filesPerPage;
-  //$cond = sprintf("%u,%u", $startPoint, $filesPerPage);
-
-  //$files = $app->FileGateway->getLatestFiles($cond);
   $files = $app->FileGateway->getLatestFiles($num);
 
   $app->render('latestFiles.phtml', array(
     'files' => $files,
     'title' => 'Последние файлы'
-    //'pages' => $pages,
-    //'curpage' => $page,
     ));
 });
 
@@ -203,15 +189,23 @@ $app->get('/showFullPicture/:id', function($id) use ($app) {
 });
 
 $app->post('/modify/:id', function($id) use ($app) {
+  session_start();
   $description = $app->request->post('description');
-  if ($description != "" ) {
-    $isSet = $app->FileGateway->checkFile($id);
+  if (isset($_SESSION['fileId'])
+   && array_key_exists("$id", $_SESSION['fileId']) ) {
+    /*
+    $isSet = $app->FileGateway->getDescription($id);
     if (!$isSet) {
     $app->FileGateway->addDescription($id, $description );
+    $message = "Описание файла успешно добавлено.";
     } else {
     $app->FileGateway->changeDescription($id, $description);
+    $message = 'Описание файла успешно изменено.';
     }
-  }  
+    */
+  $app->FileGateway->changeDescription($id, $description );
+  $app->flash('success', 'Описание файла успешно обновлено');
+  } 
   $app->response->redirect("/f/{$id}", 303);
 });
 
@@ -234,7 +228,6 @@ $app->get('/search(/:page)', function($page=1) use ($app) {
 
 });
 
-
 $app->post('/comment/async', function() use ($app) {
   $commentHandler = new CommentsController($app->CommentGateway, $app->request->post());
   $result = $commentHandler->addComment(true);
@@ -254,8 +247,6 @@ $app->post('/comment/async', function() use ($app) {
     $html = $app->view->fetch('comment.phtml', array(
     'comment' => $comment));
     header("Content-Type: application/json");
-    //header("HTTP/1.1 404 Not Found");
-    //exit;
     echo json_encode(array(
     'ok' => true,
     'relativesNum' => $relativesNum,
@@ -267,10 +258,41 @@ $app->post('/comment/async', function() use ($app) {
   }
 });
 
-$app->get('/delete/:id', function($id) use ($app) {
+$app->post('/delete', function() use ($app) {
+  session_start();
+  $id = $app->request->post('id');
+  if ($id 
+    && isset($_SESSION['fileId']) 
+    && array_key_exists("$id", $_SESSION['fileId']) ) { 
+    $file = $app->FileGateway->getData($id);
+    if ($file) {
+      $dir = dirname($file->path);
+      $files = scandir($dir);
+      foreach ($files as $file) {
+        if ($file == "." || $file == "..") {
+          continue;
+        }
+        $filePath = $dir . "/" . $file;
+        unlink($filePath);
+      }
+      rmdir($dir);
+    } 
   $app->FileGateway->deleteFile($id);
+  $app->response->redirect("/successRemoval", 303);
+ } else {
+  $app->response->redirect('/', 303);
+ }
+});
+
+$app->get('/successRemoval', function() use ($app) {
   $app->render('successRemoval.phtml', array(
-    'title' => 'Файл удалён'));
+    'title' => 'Файл удалён')); 
+});
+
+$app->get('/rules', function() use ($app) {
+  $app->render('rules.phtml', array(
+    'title' => 'Правила',
+    'maxFileSize' => $app->config('maxFileSize')));
 });
 
 $app->notFound(function () use ($app) {

@@ -8,11 +8,11 @@ RewriteEngine On
 #
 #RewriteBase d-loadMe/
 
-RewriteRule uploads/(.+\.\w+)/(.+\.\w+)$ uploads/$1
+RewriteRule uploads/(.+\.\w+)/(.+\.\w+)$ /uploads/$1
 
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_URI} !^/uploads
-RewriteRule ^ index.php [QSA,L]
+RewriteRule ^ /index.php [QSA,L]
 
 php_value memory_limit 512M
 php_value post_max_size 128M

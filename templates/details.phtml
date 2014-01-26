@@ -1,7 +1,9 @@
 <?php
-session_start();
+//session_start();
 include 'header.phtml';
 ?>
+
+
 
 <? if ( isset($_SESSION['fileId']) && array_key_exists("$file->id", $_SESSION['fileId']) ): ?>
 
@@ -46,7 +48,7 @@ $(function() {
 </script>
 <? endif; ?>
 <div class="content details" >
-<h1><a href="<?= $file->path . "/" . $file->name ?>"><?= $file->name ?></a> <span class="size">(<?= $file->getPrettySize() ?>)</span></h1>
+<h1><a href="/<?= $file->path . "/" . $file->name ?>"><?= $file->name ?></a> <span class="size">(<?= $file->getPrettySize() ?>)</span></h1>
 <hr>
 <? if ( $file->isPicture() && $file->isResizable() ): ?>
    <a href="/showFullPicture/<?= $file->id ?>"><img src="<?= MyPreviewThumbnail::link($file->path, 350, 350, MyPreviewThumbnail::MODE_SCALE) ?>" alt="<?= $file->name ?>" title=" <?= $file->name . ' - preview' ?>" />
@@ -56,13 +58,24 @@ $(function() {
 <? if ($file->description): ?>
 <p><?= h($file->description) ?></p>
 <? endif; ?>
-<form id="download" action="<?= $file->path . "/" . $file->name ?>" method="GET">
+
+<? if (isset($flash['success'])): ?>
+<div class="alert alert-success fade in" id="update_success_alert">
+<button type="button" class="close" data-dismiss="alert">&times;</button>
+<?= $flash['success'] ?>
+</div>
+<? endif; ?>
+
+<form id="download" action="/<?= $file->path . "/" . $file->name ?>" method="GET">
 <button type="submit" class="btn download btn-info"><i class="icon-download-alt"></i> Скачать</button>
 </form>
 <? if ( isset($_SESSION['fileId']) && array_key_exists("$file->id", $_SESSION['fileId']) ): ?>
 <? $_SESSION['fileId']["$file->id"]++; ?>
 <button class="btn edit"><i class="icon-edit"></i> Править</button>
-<a href="/delete/<?= $file->id ?>" class="btn delete"><i class="icon-remove"></i> Удалить</a>
+<form action="/delete" method="POST" id="delete_file">
+  <input type="hidden" name="id" value="<?= $file->id ?>">
+<button type="submit" class="btn delete"><i class="icon-remove"></i> Удалить</button>
+</form>
 <script type="text/javascript">
   $('.edit').click(function() {
     $('#myModal').modal('show');
@@ -186,7 +199,7 @@ echo "<script type='text/javascript'>
 <? endif; ?>
 <div class="comments_section">
 <?php if (!empty($comments)): ?>
-  <h3><i class="icon-comment"></i> Комментарии:</h3>
+  <h3 id="comments_section_header"><i class="icon-comment"></i> Комментарии:</h3>
   <? foreach ($comments as $comment): ?>
   <? include 'comment.phtml'; ?>
   <? endforeach; ?>
@@ -209,4 +222,211 @@ echo "<script type='text/javascript'>
   </form>
 </div>
 </div>
-<? include 'footer.html'; 
+ <script type="text/JavaScript">
+     $(document).ready(function () {  
+      $('ul.nav li.active').removeClass('active');
+        $('a[href="' + this.location.pathname + '"]').parent().addClass('active');
+     });
+     </script>
+    <script type="text/javascript">
+
+function isElementInViewport (el) {
+    var rect = el.getBoundingClientRect();
+
+    return (
+        rect.top >= 0 &&
+        rect.left >= 0 &&
+        rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) && /*or $(window).height() */
+        rect.right <= (window.innerWidth || document.documentElement.clientWidth) /*or $(window).width() */
+    );
+}
+
+function elementVisibilityMayChange (el) {
+    return function () {
+        if ( isElementInViewport(el) ) {
+            return;
+        } else {
+          el.scrollIntoView(true);
+        }
+    }
+}
+
+//jQuery
+//$(window).on('DOMContentLoaded load resize scroll', handler);
+
+$( "a#add_comment" ).click(function() {
+$('#comment').find('textarea, input[type="text"]').val("").end().show(); 
+$('html, body').animate({ 
+   scrollTop: $(document).height()-$(window).height()}, 
+   400, 
+   "linear"
+);
+$(this).hide();
+//return false;
+});
+</script>
+
+<script type="text/javascript">
+
+$(function() {
+
+   $('.comments_section').on("click", "a.reply", function(event) {
+    var parent = $(this).closest('div.comment').attr('id');
+    $( "input[name='parentId']", 'form#reply' )
+    .val(parent)
+      .closest('form')
+        .find('textarea, input[type="text"]')
+          .val("")
+            .end()
+              .insertAfter('#'+parent)
+                .slideDown();
+    $('a[style="display: none;"]', '.comments_section').show();
+    $(this).hide();
+
+ var textarea = $('textarea', 'form#reply')[0];
+  if (!isElementInViewport(textarea)) {
+    $('html, body').animate({
+             scrollTop: $(textarea).offset().top - 40
+            }, 600);
+          
+  }
+
+
+   });
+
+  $('.content').on('click', '.parent_comment_ref', function(event) {
+        var parent = $(this).text().substr(2);
+            var top = $('#'+parent).offset().top;
+            var height = $('#'+parent)[0].offsetHeight;
+         if ( (top < window.pageYOffset) || ((top + height) > (window.pageYOffset + window.innerHeight)) )  {
+            $('html, body').animate({
+             scrollTop: $("#"+parent).offset().top - 40
+            }, 600);
+          }
+        $('#'+parent).addClass('parent');
+        var timer = setTimeout(function() {
+          $('.parent').removeClass('parent', 'slow');
+        }, 2000);
+  });
+
+ });
+
+  </script>
+
+ <script type="text/javaScript">
+
+$('#comment, #reply').submit(function(event) {
+
+  var button = $('input[type="submit"]', this);
+  var currentForm = this;
+  var formData = $(this).serializeArray();
+
+  function displayErrorMessage() {
+    $('<div class="alert alert-error fade in"></div>')
+      .append('<a href="#" class="close" data-dismiss="alert">&times;</a>')
+      .append('<strong>Ой!</strong> Произошел сбой отправки данных.')
+      .appendTo(this).position({
+        my: "left+20 center",
+        at: "right center",
+        of:  $('textarea', this),
+      });
+  }
+
+/****** здесь просто проверяем тело комментария на непустое знеачение ****/
+  if ($('textarea[name="body"]', this).val() == "") {
+     
+     if ($('textarea[name="body"]', this).hasClass('emptyBody') ) {
+      event.preventDefault();
+      return false;
+     } 
+
+    $('textarea', this)
+    .wrap('<div class="control-group error"></div>')
+    .addClass('emptyBody')
+    .after('<span class="help-inline">Это поле обязательно для заполнения</span>')
+    .one("focus", function() {
+      $(this)
+      .focus()
+      .unwrap()
+      .removeClass('emptyBody')
+      .next('span')
+      .remove();
+    });
+    event.preventDefault();
+    return false;
+  }
+/****** ====================================================****/
+
+  $.ajax({
+      dataType: 'json',
+      data: formData,
+      type: "POST",
+      url: '/comment/async',
+      context: currentForm,
+      complete: function () {
+        $(button).button('reset');
+      }, 
+      error: function() {
+        displayErrorMessage.call(this);
+      }, 
+      success: function (result) {
+        if (result['ok']) {
+          var isThereHeader = $('.comments_section').has('#comments_section_header').length;
+          if (!isThereHeader) {
+            $('<h3 id="comments_section_header"></h3>').append('<i class="icon-comment"></i> Комментарии:').prependTo('.comments_section');
+          }
+        $(this).slideUp(400, function () {
+        var html = $.parseHTML(result['html']);
+        
+        $(html[0]).hide();
+
+        if (!result['parentId']) {
+          $(html).insertBefore('#add_comment');
+
+        } else if (result['relativesNum']) {
+          $('#'+ result['parentId'] + '~ div.comment').eq(result['relativesNum']-1).after(html);
+        } else {
+          $(html).insertAfter('#'+ result['parentId'] );
+        }
+
+        $('#'+result['id']).slideDown().addClass('brand-new', 'normal');
+        /*
+            var top = $('#'+result['id']).offset().top;
+            var height = $('#'+result['id'])[0].offsetHeight;
+
+            
+          if ( (top < window.pageYOffset) || ((top + height) > (window.pageYOffset + window.innerHeight)) )  {
+            $('html, body').animate({
+             scrollTop: $("#"+result['id']).offset().top - 40
+            }, 600);
+          }
+          */
+          
+ var comment = $('#'+result['id'])[0];
+ var visible = isElementInViewport(comment);
+ if (!visible) {
+  $('html, body').animate({
+             scrollTop: $("#"+result['id']).offset().top - 40
+            }, 400);
+          }
+     // elementVisibilityMayChange(comment);
+
+       //document.getElementById(result['id']).scrollIntoView(true);
+        var timer = setTimeout(function() {
+          $('.brand-new').removeClass('brand-new', 'slow');
+        }, 2000);
+
+        $('a[style="display: none;"]', '.comments_section').show();
+      });
+    } else {
+        displayErrorMessage.call(this);
+    }
+}
+});
+event.preventDefault();
+});
+ </script>
+
+
+<? include 'footer.html'; ?>
+

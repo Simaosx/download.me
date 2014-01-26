@@ -48,7 +48,6 @@ class Uploader {
     
     public function getUploadProgress() {
       session_start();
-      //$percent = 0;
       $data = array();
       if(isset($_SESSION['upload_progress_d-loadme']) && is_array($_SESSION['upload_progress_d-loadme'])) {
         $percent = ($_SESSION['upload_progress_d-loadme']['bytes_processed'] * 100 ) / $_SESSION['upload_progress_d-loadme']['content_length'];
@@ -89,7 +88,7 @@ class Uploader {
           } elseif (!$userfile['name']) {
      	    $this->errorMessage = "Вы не выбрали файл для загрузки";
           } else {
-            $this->errorMessage = 'Возникла проблема при загрузке файла';
+           throw new Exception("Uploader::uploadFile was unable to upload file");
           }
         return false;
         }

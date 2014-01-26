@@ -9,17 +9,15 @@ class FileGateway {
 
     $this->mysqliInstanse->query('START TRANSACTION');
 
-    $query = "INSERT INTO {$this->table} (name, size, mime, unixtime, md5_name)
+    $query = "INSERT INTO {$this->table} (name, size, mime, unixtime, md5)
     VALUES (?, ?, ?, ?, ?)";
-
-
     if ($stmt = $this->mysqliInstanse->prepare($query)) {
       $name = $file->name;
       $size = $file->size;
       $mime = $file->mime;
       $unixtime = $file->unixtime;
-      $md5Name = $file->md5;
-      $stmt->bind_param("sisis", $name, $size, $mime, $unixtime, $md5Name);
+      $md5 = $file->md5;
+      $stmt->bind_param("sisis", $name, $size, $mime, $unixtime, $md5);
     } else {
       throw new Exception("Не удалось подготовить SQL запрос");
     }
@@ -60,16 +58,16 @@ class FileGateway {
     $query = "SELECT * FROM {$this->table} WHERE id=?";
     $stmt = $this->mysqliInstanse->prepare($query);
     $stmt->bind_param("i", $id);
-    $cols = array();
     if (!$stmt->execute()) {
        throw new Exception("Не удалось получить данные о файле по заданному id: " . $id);
     }
-    $stmt->bind_result($cols['id'], $cols['name'], $cols['md5'], $cols['mime'], $cols['unixtime'], $cols['size'], $cols['path'], $cols['description']);
-    if(!$stmt->fetch()) {
-       return false;
-    }
+    $result = $stmt->get_result();
+    $row = $result->fetch_assoc();
     $stmt->close();
-    $file = File::constructFromArray($cols);
+    if (!$row) {
+      return false;
+    } 
+    $file = File::constructFromArray($row);
     return $file;
   }
 
@@ -91,20 +89,20 @@ class FileGateway {
     $stmt->close();
     return $files;
   }
-
+/*
   public function checkFile($fileId) {
-    $query = "SELECT id FROM {$this->table} WHERE id = ?";
+    $query = "SELECT description FROM {$this->table} WHERE id = ?";
     $stmt = $this->mysqliInstanse->prepare($query);
     $stmt->bind_param("i", $fileId);
      if (!$stmt->execute()) {
         throw new Exception("Не удалось связаться с базой данных: (" . $stmt->errno . ") " . $stmt->error);
      }
-     $stmt->store_result();
-     $num  = $stmt->num_rows;
+     $stmt->bind_result($description);
+     $stmt->fetch();
      $stmt->close();
-     return $num;
+     return $description;
   }
-
+*/
   public function changeDescription($fileId, $description) {
     $query = "UPDATE {$this->table} SET description = ? 
               WHERE id = ?";
@@ -119,14 +117,14 @@ class FileGateway {
      $stmt->close();
     //$num =  $stmt->affected_rows;          
   }
-
+/*
   public function addDescription($fileId, $description) {
 
-    $query = "INSERT INTO {$this->table} (id, description)
-    VALUES (?, ?)";
+    $query = "INSERT INTO {$this->table} (description)
+    VALUES (?) WHERE id = ?";
 
     if ($stmt = $this->mysqliInstanse->prepare($query)) {
-      $stmt->bind_param("is", $fileId, $description);
+      $stmt->bind_param("si", $description, $fileId);
     } else {
       throw new Exception("Не удалось подготовить SQL запрос при попытке добавления описания");
     }
@@ -136,7 +134,7 @@ class FileGateway {
     $stmt->close();
     //return $stmt->affected_rows;
   }
-  
+  */
   public function getDescription($fileId) {
     $query = "SELECT (description) FROM {$this->table} WHERE id = ?";
     if ($stmt = $this->mysqliInstanse->prepare($query)) {

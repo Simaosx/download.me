@@ -1,6 +1,5 @@
 uploads/*
-getId3/*
-jPlayer/skin/*
 !uploads/.htaccess
 assets/
+!assets/*.jpg
 *.ico
