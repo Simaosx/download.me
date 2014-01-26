@@ -1,0 +1,59 @@
+<?php
+include 'header.phtml';
+?>
+<div class="content search">
+<div class="list">
+    <form class="form-search" method="GET" action="/search">
+    <input type="text" class="input-medium" name="string" value="<?= $query ?>">
+    <button type="submit" class="btn">Поиск</button>
+    </form>
+<?= $message ?>
+<? if ($last > 1 ): ?>
+
+<p>(Показана <?= $curPage ?> страница из <?= $last ?>) |
+   <span class="page-nav"> <? if($curPage == 1): ?> « Назад
+   <? else: ?>
+   <a href="/search/<?= $curPage - 1 . '?' . 'string=' . $query ?>">  « Назад </a>
+   <? endif; ?>
+  </span>
+   <span class="page-nav"> <? if ($curPage == $last): ?> Вперёд »
+   <? else: ?>
+   <a href="/search/<?= $curPage + 1 . '?' . 'string=' . $query ?>">  Вперёд »</a>
+   <? endif; ?>
+</span>
+</p>
+<? endif; ?>
+
+<? if (!empty($files)): ?>
+<ol>
+   <? foreach ($files as $file): ?>
+    <li><a href="<?= $file->getRelativeLink() ?>"><?= $file->name ?></a> - <?= $file->getPrettySize() ?></li>
+   <? endforeach; ?>
+</ol>
+<? endif; ?>
+</div>
+<? if ($last > 1):  ?>
+    <div class="pagination">
+    <ul>
+    <li <? if ($curPage == 1): ?> class="disabled"> <a href="/search/1?string=<?= $query ?>"> <? else: ?> ><a href="/search/<?= $curPage - 1 . '?' . 'string=' . $query ?>"> <? endif; ?>&larr;</a></li>
+    <? if ( ($curPage - 2) > 1 ): ?>
+    <li><a href="/search/1?string=<?= $query ?>">1</a></li>
+    <? endif; ?>
+    <? if ( ($curPage - 2) > 2): ?>
+    <li><a href="/search/<?= $curPage . '?' . 'string=' . $query ?>">...</a></li>
+    <? endif; ?>
+    <? for ($i=max(1, $curPage-2); $i<=(min($curPage + 2, $last)); $i++): ?> 
+    <li <? if($i == $curPage): ?> class="active" <? endif; ?> ><a href="/search/<?= $i . '?' . 'string=' . $query ?>"><?= $i ?></a></li>
+    <? endfor; ?>
+    <? if ( ($curPage + 2) < ($last-1) ): ?>
+    <li><a href="/search/<?= $curPage . '?' . 'string=' . $query ?>">...</a></li>
+     <? endif; ?>
+    <? if ( ($curPage + 2) < $last ): ?>
+    <li><a href="/search/<?= $last . '?' . 'string=' . $query ?>"><?= $last ?></a></li>
+    <? endif; ?>
+    <li <? if ($curPage == $last): ?> class="disabled"> <a href="/search/<?= $last . '?' . 'string=' . $query ?>"> <? else: ?> ><a href="/search/<?= $curPage + 1 . '?' . 'string=' . $query ?>"> <? endif; ?>&rarr;</a></li>
+    </ul>
+    </div>
+ <? endif; ?>
+</div>
+<?php include 'footer.html'; ?>

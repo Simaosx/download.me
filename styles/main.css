@@ -1,0 +1,282 @@
+html, body {
+	height: 100%;
+	margin: 0;
+	padding: 0;
+}
+
+.container {
+	min-height: 100%;
+	padding: 0;
+	margin-bottom: -50px;
+}
+* html .container {
+	height: 100%;
+}
+.content {
+  padding: 40px 0;
+  text-align: center;
+  margin-top: 60px;
+}
+.page-buffer {
+	height: 50px;
+}
+
+h1, h2 {
+	font-weight: normal;
+}
+h2 span {
+	color: #999;
+}
+h2+p {
+	margin: 60px 0 0 0;
+	font-weight: bold;
+	font-size: large;
+}
+
+.navbar form {
+	float: right;
+	margin: 0;
+	position: relative;
+	top: 5px;
+}
+
+form#upload {
+	width: 50%;
+	margin: 20px 25%;
+	text-align: center;
+}
+p.error {
+	color: red;
+}
+form#upload input {
+	max-width: 200px;
+	overflow-x: hidden;
+	display: inline;
+}
+form#upload input[type="submit"] {
+	margin-left: 20px;
+}
+input+p {
+	font-size: smaller;
+}
+form>p{
+	margin-top: 10px;
+}
+
+.details.content, .content.errorForm, .content.files, .content.search {
+	text-align: left;
+	margin-top: 20px;
+}
+button.download {
+	float: left;
+	display: block;
+	clear: left;
+	margin-bottom: 30px;
+}
+table {
+	float:left;
+	clear: left;
+	margin-bottom: 40px;
+}
+/*
+td, th {
+	border: 1px solid #CCC;
+	border-collapse: collapse;
+	text-align: center;
+	padding: 10px;
+}
+*/
+h1>span.size {
+  color: silver;
+  font-size: smaller;
+}
+/*
+input#download_url {
+float: left;
+margin-left: 10px;
+margin-right: auto;
+clear: right;
+}
+*/
+/*
+label[for=download_url] {
+	display: block;
+	float: left;
+	line-height: 20px;
+	padding-top: 5px;
+	font-size: 14px;
+	vertical-align: middle;
+}
+*/
+.footer{
+	/*width:100%;*/
+	text-align: center;
+	/*font-size: 10px;*/
+	color: #b2b2b2;
+	clear: both;
+	height: 50px;
+}
+div.description {
+	width: 50%;
+	margin: auto;
+	text-align: left;
+	line-height: 20px;
+}
+div.about {
+	text-align: center;
+}
+span.contacts {
+	color: maroon;
+}
+.comments_section {
+	clear: both;
+}
+a {
+	cursor: pointer;
+}
+
+form#comment {
+	display: none;
+}
+form.comment input, textarea {
+display: block;
+}
+div.comment span.name {
+	color: gray;
+}
+div.comment_body {
+	line-height: 14px;
+}
+
+form#reply {
+	display: none;
+}
+a.reply {
+	line-height: 14px;
+	font-size: smaller;
+}
+.comment p {
+  margin: 0;
+}
+textarea.emptyBody {
+	display: inline;
+}
+div.list {
+	width: 600px;
+	float: left;
+}
+div.buttons {
+	clear: both;
+	width: 300px;
+}
+h1>a {
+ color: inherit;
+}
+h1>a:hover {
+	color: #1A1A1A;
+	}
+ul.nav {
+	height: 100%;
+}
+div.helper {
+	margin-top: 50px;
+}
+.modal {
+	display: none;
+}
+button.edit, a.delete {
+	float: left;
+	margin-left: 10px;
+}
+#myModal {
+	text-align: center;
+}
+.control-label {
+	width: auto;
+}
+div.controls {
+	text-align: left;
+}
+#download {
+	display: inline;
+}
+.search-query {
+	font-weight: bold;
+}
+.page-nav {
+	color: rgb(153, 153, 153);
+	display: inline-block;
+	margin-left: 20px;
+}
+.content.search p {
+  color: rgb(102, 102, 102);
+}
+.pagination {
+	clear: both;
+	float: left;
+}
+#jp_container_1 {
+	float: left;
+	clear: both;
+	margin-bottom: 20px;
+}
+/*
+caption {
+	background: #CCC;
+}
+table {
+	border-radius: 5px;
+}
+*/
+
+table.info.table {
+	width: auto;
+}
+.comment_id, .parent_comment_ref {
+	font-size: smaller;
+	color: teal;
+}
+
+.parent_comment_ref {
+	text-decoration: underline;
+	color: maroon;
+}
+
+.comment_body {
+	background: whitesmoke;
+	padding: 5px !important;
+	margin-top: 0 !important;
+	border-radius: 3px;
+	border: solid 1px #CCC;
+}
+
+a.reply {
+	float: right;
+}
+.comment, #add_comment, form#comment, form#reply {
+	float: left;
+	clear: both;
+}
+.content.removed {
+	margin-top: 20px;
+}
+.comment {
+	padding: 5px;
+}
+.comment.brand-new {
+	border-radius: 4px;
+	background: #94FF94;
+}
+.parent_comment_ref {
+	cursor: pointer;
+}
+.parent {
+	border-radius: 4px;
+	background: #FFA375;
+}
+.alert-container {
+	margin-left: 20px;
+}
+#upload_progress {
+	display: none;
+}

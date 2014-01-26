@@ -1,0 +1,34 @@
+AddDefaultCharset utf-8
+
+RewriteEngine On
+
+# Some hosts may require you to use the `RewriteBase` directive.
+# If you need to use the `RewriteBase` directive, it should be the
+# absolute physical path to the directory that contains this htaccess file.
+#
+#RewriteBase d-loadMe/
+
+RewriteRule uploads/(.+\.\w+)/(.+\.\w+)$ uploads/$1
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_URI} !^/uploads
+RewriteRule ^ index.php [QSA,L]
+
+php_value memory_limit 512M
+php_value post_max_size 128M
+php_value upload_max_filesize 100M
+
+# AddType TYPE/SUBTYPE EXTENSION
+     
+AddType video/mp4 mp4
+AddType video/mp4 m4v
+AddType video/ogg ogv
+AddType video/webm webm
+AddType video/webm webmv
+
+AddType audio/mpeg mp3
+AddType audio/mp4 m4a
+AddType audio/ogg ogg
+AddType audio/ogg oga
+AddType audio/webm webma
+AddType audio/wav wav

@@ -1,0 +1,212 @@
+<?php
+session_start();
+include 'header.phtml';
+?>
+
+<? if ( isset($_SESSION['fileId']) && array_key_exists("$file->id", $_SESSION['fileId']) ): ?>
+
+<!-- Модальное окно, позволяющее добавить описание для файла. -->
+
+<div class="modal" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+<form class="form-horizontal"action="/modify/<?= $file->id ?>" method="POST" >
+<div class="modal-header">
+<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+<h3 id="myModalLabel">Введите описание для файла</h3>
+</div>
+<div class="modal-body">
+<div class="control-group">
+<label class="control-label" for="download_url">URL</label>
+<div class="controls">
+<input type="text" id="download_url" value="<?= 'http://' . $app->config('domainName') . $file->getRelativeLink() ?>" readonly="readonly" onclick="this.select();" ></input>
+</div>
+</div>
+<div class="control-group">
+  <label class="control-label" for="description">Описание</label>
+  <div class="controls">
+    <textarea name="description" id="description"></textarea>
+  </div>
+</div> 
+</div>
+<div class="modal-footer">
+<button class="btn" data-dismiss="modal" aria-hidden="true">Отмена</button>
+<button class="btn btn-primary" type="submit">Сохранить</button>
+</div>
+</form> 
+</div>
+<? endif; ?>
+
+<? if (  isset($_SESSION['fileId']) &&
+         array_key_exists("$file->id", $_SESSION['fileId']) &&
+        ($_SESSION['fileId']["$file->id"] === 0) ): ?>
+<!-- Модальное окно правки появится автоматически при первом посещении после загрузки файла -->
+<script type="text/javascript">
+$(function() {
+ $('#myModal').modal('show');
+});
+</script>
+<? endif; ?>
+<div class="content details" >
+<h1><a href="<?= $file->path . "/" . $file->name ?>"><?= $file->name ?></a> <span class="size">(<?= $file->getPrettySize() ?>)</span></h1>
+<hr>
+<? if ( $file->isPicture() && $file->isResizable() ): ?>
+   <a href="/showFullPicture/<?= $file->id ?>"><img src="<?= MyPreviewThumbnail::link($file->path, 350, 350, MyPreviewThumbnail::MODE_SCALE) ?>" alt="<?= $file->name ?>" title=" <?= $file->name . ' - preview' ?>" />
+   </a>
+  <hr>
+<? endif; ?>
+<? if ($file->description): ?>
+<p><?= h($file->description) ?></p>
+<? endif; ?>
+<form id="download" action="<?= $file->path . "/" . $file->name ?>" method="GET">
+<button type="submit" class="btn download btn-info"><i class="icon-download-alt"></i> Скачать</button>
+</form>
+<? if ( isset($_SESSION['fileId']) && array_key_exists("$file->id", $_SESSION['fileId']) ): ?>
+<? $_SESSION['fileId']["$file->id"]++; ?>
+<button class="btn edit"><i class="icon-edit"></i> Править</button>
+<a href="/delete/<?= $file->id ?>" class="btn delete"><i class="icon-remove"></i> Удалить</a>
+<script type="text/javascript">
+  $('.edit').click(function() {
+    $('#myModal').modal('show');
+  });
+$('.delete').click(function() {
+if (confirm("Вы точно хотите удалить этот файл?")) {
+  return true;
+} else {
+  return false;
+}
+});
+</script>
+<? endif; ?>
+<table class="table-bordered table info">
+  <caption>Информация о файле</caption>
+  <tr>
+    <td>Дата загрузки:</td><td><?= date('j F Y H:i', $file->unixtime) ?></td>
+  </tr>
+  <tr><td>Тип файла:</td><td><?= $file->mime ?></td>
+  </tr>
+  <tr><td>Расширение:</td><td><?= $file->getExtension() ?></td>
+  </tr>
+  <? if ( $file->isPicture()): ?>
+  <? list($width, $height) = $file->isPicture(); ?>
+  <tr><td>Ширина:</td><td> <?= $width ?> px</td></tr>
+  <tr><td>Высота:</td><td><?= $height ?> px</td></tr>
+  <? endif; ?>
+
+  <? if ($file->isPlayable()): ?>
+  <? $ThisFileInfo = $app->getID3->analyze($file->path); ?>
+  <? getid3_lib::CopyTagsToComments($ThisFileInfo); ?>
+  <? if (isset($ThisFileInfo['tags']['id3v2']['title'][0]) ): ?>
+  <tr><td>Название композиции:</td><td><?= $ThisFileInfo['tags']['id3v2']['title'][0] ?></td></tr>
+  <? endif; ?>
+  <? if (isset($ThisFileInfo['comments_html']['artist'][0]) ): ?>
+  <tr><td>Исполнитель:</td><td><?= $ThisFileInfo['comments_html']['artist'][0] ?></td></tr>
+  <? endif; ?>
+  <? if (isset($ThisFileInfo['audio']['bitrate']) ): ?>
+  <tr><td>Битрейт:</td><td><?= $ThisFileInfo['audio']['bitrate']/1000 ?> kbps</td></tr>
+  <? endif; ?>
+  <? if (isset($ThisFileInfo['playtime_string']) ): ?>
+  <? $parts = explode(":", $ThisFileInfo['playtime_string']) ?>
+  <? list($min, $sec) = $parts;   ?>
+  <tr><td>Продолжительность:</td><td><?= trim($min) ?> мин. <?= trim($sec) ?> сек.</td></tr>
+  <? endif; ?>
+  <? if (isset($ThisFileInfo['tags']['id3v2']['album'][0]) ): ?>
+  <tr><td>Альбом:</td><td><?= $ThisFileInfo['tags']['id3v2']['album'][0] ?></td></tr>
+  <? endif; ?>
+  <? if (isset($ThisFileInfo['tags']['id3v2']['genre'][0]) ): ?>
+  <tr><td>Жанр:</td><td><?= $ThisFileInfo['tags']['id3v2']['genre'][0] ?></td></tr>
+  <? endif; ?>
+  <? if (isset($ThisFileInfo['tags']['id3v2']['year'][0]) ): ?>
+  <tr><td>Год:</td><td><?= $ThisFileInfo['tags']['id3v2']['year'][0] ?></td></tr>
+  <? endif; ?>
+
+  <? endif; ?>
+</table>
+<? if ($file->isPlayable()): ?> 
+
+<?
+echo "<script type='text/javascript'>
+        $(document).ready(function(){
+        $('#jquery_jplayer_1').jPlayer({
+        ready: function () {
+          $(this).jPlayer('setMedia', {
+           mp3: '/{$file->path}'
+         });
+        },
+       swfPath: '/jPlayer/js',
+        supplied: '{$file->getExtension()}'
+      });
+    });
+  </script>";
+?>
+
+<!--jPlayer -->
+
+  <div id="jquery_jplayer_1" class="jp-jplayer"></div>
+  <div id="jp_container_1" class="jp-audio">
+    <div class="jp-type-single">
+      <div class="jp-gui jp-interface">
+        <ul class="jp-controls">
+          <li><a href="javascript:;" class="jp-play" tabindex="1">play</a></li>
+          <li><a href="javascript:;" class="jp-pause" tabindex="1">pause</a></li>
+          <li><a href="javascript:;" class="jp-stop" tabindex="1">stop</a></li>
+          <li><a href="javascript:;" class="jp-mute" tabindex="1" title="mute">mute</a></li>
+          <li><a href="javascript:;" class="jp-unmute" tabindex="1" title="unmute">unmute</a></li>
+          <li><a href="javascript:;" class="jp-volume-max" tabindex="1" title="max volume">max volume</a></li>
+        </ul>
+        <div class="jp-progress">
+          <div class="jp-seek-bar">
+            <div class="jp-play-bar"></div>
+          </div>
+        </div>
+        <div class="jp-volume-bar">
+          <div class="jp-volume-bar-value"></div>
+        </div>
+        <div class="jp-time-holder">
+          <div class="jp-current-time"></div>
+          <div class="jp-duration"></div>
+          <ul class="jp-toggles">
+            <li><a href="javascript:;" class="jp-repeat" tabindex="1" title="repeat">repeat</a></li>
+            <li><a href="javascript:;" class="jp-repeat-off" tabindex="1" title="repeat off">repeat off</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="jp-title">
+        <ul>
+          <li><?= $file->name ?></li>
+        </ul>
+      </div>
+      <div class="jp-no-solution">
+        <span>Update Required</span>
+        To play the media you will need to either update your browser to a recent version or update your <a href="http://get.adobe.com/flashplayer/" target="_blank">Flash plugin</a>.
+      </div>
+    </div>
+  </div>
+
+<!-- ====================================================== -->
+
+<? endif; ?>
+<div class="comments_section">
+<?php if (!empty($comments)): ?>
+  <h3><i class="icon-comment"></i> Комментарии:</h3>
+  <? foreach ($comments as $comment): ?>
+  <? include 'comment.phtml'; ?>
+  <? endforeach; ?>
+  <?   endif; ?>
+  <form id="reply" name="reply" action="/comment" method="POST">
+    <h3>Ответить на комментарий</h3>
+    <input id="comment_author" name="author" type="text" placeholder="Ваше имя (не обязательно)">
+  <textarea id="comment_body" name="body"></textarea>
+    <input type="hidden" value="<?= $file->id ?>" name="fileId">
+    <input type="hidden" value="" name="parentId">
+    <input type="submit" value="Ответить" data-loading-text="Отправка..." class="btn">
+    </form>
+  <a id="add_comment">Добавить комментарий</a>
+  <form id="comment" name="comment" action="/comment" method="POST">
+    <h3>Добавить комментарий</h3>
+  <input id="comment_author" name="author" type="text" placeholder="Ваше имя (не обязательно)">
+  <textarea id="comment_body" name="body"></textarea>
+  <input type="hidden" value="<?= $file->id ?>" name="fileId">
+  <input type="submit" value="Отправить" data-loading-text="Отправка..." class="btn">
+  </form>
+</div>
+</div>
+<? include 'footer.html'; 

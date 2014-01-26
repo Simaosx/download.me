@@ -1,0 +1,15 @@
+<?php
+include 'header.phtml';
+?>
+<div class="content files" >
+	<div class="list">
+<h3>Последние файлы</h3>
+<ul>
+   <? foreach ($files as $file): ?>
+    <li><a href="<?= $file->getRelativeLink() ?>"><?= $file->name ?></a> - <?= $file->getPrettySize() ?></li>
+   <? endforeach; ?>
+
+</ul>
+</div>
+</div>
+<?php include 'footer.html'; ?>

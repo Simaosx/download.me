@@ -1,0 +1,19 @@
+<?php 
+include 'header.phtml';
+?>
+<div class="content errorForm">
+<form id="empty_body" name="comment" action="/comment" method="POST" >
+    <h3>Добавить комментарий</h3>
+  <input id="comment_author" name="author" type="text" placeholder="Ваше имя (не обязательно)">
+  <div class="control-group error">
+  <textarea id="comment_body" name="body" class="emptyBody"></textarea>
+  <span class="help-inline">Это поле обязательно для заполнения</span>
+</div>
+  <input type="hidden" value="<?= $params['fileId'] ?>" name="fileId">
+  <? if(isset($params['parentId'])): ?>
+  <input type="hidden" value="<?= $params['parentId'] ?>" name="parentId">
+<? endif; ?>
+  <input type="submit" value="Отправить" class="btn">
+  </form>
+</div>
+<? include 'footer.html'; ?>

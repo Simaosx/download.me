@@ -1,0 +1,16 @@
+<div class="comment" id="<?= $comment->id ?>" style="margin-left: <?= 30*$comment->getLevel() ?>px;" >
+    <div class="headline">
+      <span class="comment_id">#<?= $comment->id ?></span>
+    <i class="icon-user"></i>
+    <span class="name">  
+   <?= h($comment->author) . "</span> Написал " . date('j F Y H:i', $comment->unixtime) ?>
+    </div>
+    <div class="comment_body">
+      <p>
+  <? if ($comment->parentId): ?>
+   <span class="parent_comment_ref">&gt;&gt;<?= $comment->parentId ?></span><br>
+  <? endif; ?>
+        <?= h($comment->body) ?></p>
+    </div>
+    <a class="reply">Ответить</a>
+  </div>

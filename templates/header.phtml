@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><?= $title ?></title>
+<link href="/bootstrap/css/bootstrap.css" rel="stylesheet">
+<style>body{padding-top:60px; }</style>
+<link href="/bootstrap/css/bootstrap-responsive.css" rel="stylesheet">
+<link type="text/css" href="/jPlayer/skin/jplayer.blue.monday.css" rel="stylesheet" />
+<link rel="stylesheet" type="text/css" href="/styles/main.css">
+<!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+<link rel="icon" type="image/vnd.microsoft.icon" href="/assets/ico/favicon.ico">
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
+    <script src="jquery.form.min.js"></script>
+    <script type="text/javascript" src="/jplayer/js/jquery.jplayer.min.js"></script>
+    <script src="/bootstrap/js/bootstrap.min.js"></script>
+</head>
+<body>
+<div class="navbar navbar-fixed-top">
+  <div class="navbar-inner">
+    <div class="container">
+      <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </a>
+      <a class="brand" href="/">Download.me - файлообменник</a>
+      <div class="nav-collapse collapse">
+        <ul class="nav">
+          <li class="active"><a href="/">Главная</a></li>
+          <li><a href="/files">Последние файлы</a></li>
+          <li><a href="/about">О нас</a></li>
+        </ul>
+          <form class="form-search" method="GET" action="/search">
+          <div class="input-append">
+<input type="text" class="span2 search-query" placeholder="Поиск" name="string">
+<button type="submit" class="btn">Найти</button>
+</div>
+          </form>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="container">
+
