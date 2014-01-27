@@ -108,10 +108,10 @@ if (confirm("Вы точно хотите удалить этот файл?")) {
   <? $ThisFileInfo = $app->getID3->analyze($file->path); ?>
   <? getid3_lib::CopyTagsToComments($ThisFileInfo); ?>
   <? if (isset($ThisFileInfo['tags']['id3v2']['title'][0]) ): ?>
-  <tr><td>Название композиции:</td><td><?= $ThisFileInfo['tags']['id3v2']['title'][0] ?></td></tr>
+  <tr><td>Название композиции:</td><td><?= h($ThisFileInfo['tags']['id3v2']['title'][0]) ?></td></tr>
   <? endif; ?>
   <? if (isset($ThisFileInfo['comments_html']['artist'][0]) ): ?>
-  <tr><td>Исполнитель:</td><td><?= $ThisFileInfo['comments_html']['artist'][0] ?></td></tr>
+  <tr><td>Исполнитель:</td><td><?= h($ThisFileInfo['comments_html']['artist'][0]) ?></td></tr>
   <? endif; ?>
   <? if (isset($ThisFileInfo['audio']['bitrate']) ): ?>
   <tr><td>Битрейт:</td><td><?= $ThisFileInfo['audio']['bitrate']/1000 ?> kbps</td></tr>
@@ -122,13 +122,13 @@ if (confirm("Вы точно хотите удалить этот файл?")) {
   <tr><td>Продолжительность:</td><td><?= trim($min) ?> мин. <?= trim($sec) ?> сек.</td></tr>
   <? endif; ?>
   <? if (isset($ThisFileInfo['tags']['id3v2']['album'][0]) ): ?>
-  <tr><td>Альбом:</td><td><?= $ThisFileInfo['tags']['id3v2']['album'][0] ?></td></tr>
+  <tr><td>Альбом:</td><td><?= h($ThisFileInfo['tags']['id3v2']['album'][0]) ?></td></tr>
   <? endif; ?>
   <? if (isset($ThisFileInfo['tags']['id3v2']['genre'][0]) ): ?>
-  <tr><td>Жанр:</td><td><?= $ThisFileInfo['tags']['id3v2']['genre'][0] ?></td></tr>
+  <tr><td>Жанр:</td><td><?= h($ThisFileInfo['tags']['id3v2']['genre'][0]) ?></td></tr>
   <? endif; ?>
   <? if (isset($ThisFileInfo['tags']['id3v2']['year'][0]) ): ?>
-  <tr><td>Год:</td><td><?= $ThisFileInfo['tags']['id3v2']['year'][0] ?></td></tr>
+  <tr><td>Год:</td><td><?= h($ThisFileInfo['tags']['id3v2']['year'][0]) ?></td></tr>
   <? endif; ?>
 
   <? endif; ?>

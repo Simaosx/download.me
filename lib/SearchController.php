@@ -43,6 +43,7 @@ class SearchController {
   }
 
 	public function getHeaderString($queryString) {
+       $queryString = h($queryString);
        $string = "По запросу '<span class='search-query'>{$queryString}</span>' ";
        if ($this->num == 0) {
        	$string .= "совпадений не найдено.";
