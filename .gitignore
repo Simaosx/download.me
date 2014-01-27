@@ -2,4 +2,6 @@ uploads/*
 !uploads/.htaccess
 assets/
 !assets/*.jpg
+!assets/*.png
+!assets/*.gif
 *.ico

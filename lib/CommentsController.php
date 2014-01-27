@@ -39,6 +39,19 @@ class CommentsController {
           $this->cache = $arr;
           return false; 
         }
+        
+
+        $parts = explode(".", $arr['path']);
+        //var_dump($parts);
+        //die();
+        foreach ($parts as $key => $value) {
+          while (strlen($value) < 4) {
+            $value = "0" . $value;
+          }
+          $parts[$key] = $value;
+        }
+        $arr['path'] = implode(".", $parts);
+
         $comment = Comment::constructFromArray($arr);
         if ($async == false) {
           $comments = $this->gateway->postComment($comment)->getAllFileComments($comment->fileId);

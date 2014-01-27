@@ -63,11 +63,12 @@ $app->container->singleton('SearchGateway', function() use ($app) {
 
 $app->get('/', function () use ($app) {
   session_start();
-  $flash = $_SESSION['slim.flash'];
+  $flash = isset($_SESSION['slim.flash']) ? $_SESSION['slim.flash'] : null;
     $app->render('frontpage.phtml', array(
         "flash" => $flash,
         "title" => "Download.me - файлообменник",
-        "maxFileSize" => $app->config('maxFileSize') 
+        "maxFileSize" => $app->config('maxFileSize'),
+        'active' => 'home' 
         ));
 });
 
@@ -152,13 +153,15 @@ $app->get('/files(/:page)', function ($page=1) use ($app) {
 
   $app->render('latestFiles.phtml', array(
     'files' => $files,
-    'title' => 'Последние файлы'
+    'title' => 'Последние файлы',
+    'active' => 'files'
     ));
 });
 
 $app->get('/about', function () use ($app) {
     $app->render('about.phtml', array(
         'title' => 'О нас',
+        'active' => 'about'
         ));
 });
 

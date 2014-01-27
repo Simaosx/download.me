@@ -82,9 +82,10 @@ h1>span.size {
 }
 
 div.description {
-	width: 50%;
-	margin: auto;
-	text-align: left;
+	max-width: 400px;
+	width: auto;
+	margin: 0 auto;
+	text-align: center;
 	line-height: 20px;
 }
 div.about {
@@ -231,7 +232,8 @@ a.reply {
 }
 .parent {
 	border-radius: 4px;
-	background: 	#AAFFFF;
+	border: 1px dotted gray;
+	border-radius: 4px;
 }
 .alert-container {
 	margin-left: 20px;
@@ -253,4 +255,11 @@ a.reply {
 .front .alert {
 	width: auto;
 	margin: 10px auto 0;
+}
+.d-loadme-about {
+	text-align: justify;
+	max-width: 400px;
+}
+.bar {
+	width: 0;
 }

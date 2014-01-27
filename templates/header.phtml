@@ -33,9 +33,9 @@
       <a class="brand" href="/">Download.me - файлообменник</a>
       <div class="nav-collapse collapse">
         <ul class="nav">
-          <li class="active"><a href="/">Загрузить файл</a></li>
-          <li><a href="/files">Последние файлы</a></li>
-          <li><a href="/about">О нас</a></li>
+          <li <? if (isset($active) && $active == 'home'): ?> class="active" <? endif; ?>><a href="/">Загрузить файл</a></li>
+          <li <? if (isset($active) && $active == 'files'): ?> class="active" <? endif; ?>><a href="/files">Последние файлы</a></li>
+          <li <? if (isset($active) && $active == 'about'): ?> class="active" <? endif; ?>><a href="/about">О нас</a></li>
         </ul>
       </div>
       <form class="navbar-search pull-right" method="GET" action="/search">

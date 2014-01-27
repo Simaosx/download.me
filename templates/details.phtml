@@ -222,13 +222,8 @@ echo "<script type='text/javascript'>
   </form>
 </div>
 </div>
- <script type="text/JavaScript">
-     $(document).ready(function () {  
-      $('ul.nav li.active').removeClass('active');
-        $('a[href="' + this.location.pathname + '"]').parent().addClass('active');
-     });
-     </script>
-    <script type="text/javascript">
+
+<script type="text/javascript">
 
 function isElementInViewport (el) {
     var rect = el.getBoundingClientRect();
@@ -241,20 +236,9 @@ function isElementInViewport (el) {
     );
 }
 
-function elementVisibilityMayChange (el) {
-    return function () {
-        if ( isElementInViewport(el) ) {
-            return;
-        } else {
-          el.scrollIntoView(true);
-        }
-    }
-}
+$(function() {
 
-//jQuery
-//$(window).on('DOMContentLoaded load resize scroll', handler);
-
-$( "a#add_comment" ).click(function() {
+  $( "a#add_comment" ).click(function() {
 $('#comment').find('textarea, input[type="text"]').val("").end().show(); 
 $('html, body').animate({ 
    scrollTop: $(document).height()-$(window).height()}, 
@@ -262,13 +246,7 @@ $('html, body').animate({
    "linear"
 );
 $(this).hide();
-//return false;
 });
-</script>
-
-<script type="text/javascript">
-
-$(function() {
 
    $('.comments_section').on("click", "a.reply", function(event) {
     var parent = $(this).closest('div.comment').attr('id');
@@ -290,30 +268,26 @@ $(function() {
             }, 600);
           
   }
-
-
    });
 
   $('.content').on('click', '.parent_comment_ref', function(event) {
-        var parent = $(this).text().substr(2);
-            var top = $('#'+parent).offset().top;
-            var height = $('#'+parent)[0].offsetHeight;
-         if ( (top < window.pageYOffset) || ((top + height) > (window.pageYOffset + window.innerHeight)) )  {
+        var parentId = $(this).text().substr(2);
+        var parent = $('#'+parentId)[0];
+
+          if (!isElementInViewport(parent)) {
             $('html, body').animate({
-             scrollTop: $("#"+parent).offset().top - 40
+             scrollTop: $(parent).offset().top - 40
             }, 600);
           }
-        $('#'+parent).addClass('parent');
+        $('.parent').removeClass('parent');
+        clearTimeout(timer);
+        $(parent).addClass('parent');
         var timer = setTimeout(function() {
-          $('.parent').removeClass('parent', 'slow');
+          $('.parent').removeClass('parent');
         }, 2000);
   });
 
  });
-
-  </script>
-
- <script type="text/javaScript">
 
 $('#comment, #reply').submit(function(event) {
 
@@ -357,6 +331,8 @@ $('#comment, #reply').submit(function(event) {
   }
 /****** ====================================================****/
 
+$(button).button('loading');
+$(this).append('<img id="loading_indicator" src="/assets/ajax.gif">');
   $.ajax({
       dataType: 'json',
       data: formData,
@@ -365,6 +341,7 @@ $('#comment, #reply').submit(function(event) {
       context: currentForm,
       complete: function () {
         $(button).button('reset');
+        $('#loading_indicator').remove();
       }, 
       error: function() {
         displayErrorMessage.call(this);
@@ -388,19 +365,7 @@ $('#comment, #reply').submit(function(event) {
         } else {
           $(html).insertAfter('#'+ result['parentId'] );
         }
-
         $('#'+result['id']).slideDown().addClass('brand-new', 'normal');
-        /*
-            var top = $('#'+result['id']).offset().top;
-            var height = $('#'+result['id'])[0].offsetHeight;
-
-            
-          if ( (top < window.pageYOffset) || ((top + height) > (window.pageYOffset + window.innerHeight)) )  {
-            $('html, body').animate({
-             scrollTop: $("#"+result['id']).offset().top - 40
-            }, 600);
-          }
-          */
           
  var comment = $('#'+result['id'])[0];
  var visible = isElementInViewport(comment);
@@ -409,13 +374,9 @@ $('#comment, #reply').submit(function(event) {
              scrollTop: $("#"+result['id']).offset().top - 40
             }, 400);
           }
-     // elementVisibilityMayChange(comment);
-
-       //document.getElementById(result['id']).scrollIntoView(true);
         var timer = setTimeout(function() {
           $('.brand-new').removeClass('brand-new', 'slow');
         }, 2000);
-
         $('a[style="display: none;"]', '.comments_section').show();
       });
     } else {
@@ -426,7 +387,5 @@ $('#comment, #reply').submit(function(event) {
 event.preventDefault();
 });
  </script>
-
-
 <? include 'footer.html'; ?>
 

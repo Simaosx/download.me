@@ -6,23 +6,24 @@ class SearchGateway {
     public function getNumberOfRows($string) {
      $searchString = "'{$string}*'";
 
-     $query = "SELECT *,
-             MATCH (name, description) AGAINST (? IN BOOLEAN MODE) AS rel
-             FROM {$this->table}
-             WHERE MATCH (name, description) AGAINST (? IN BOOLEAN MODE)
-             ORDER BY REL DESC";
+     $query = "SELECT COUNT( * )
+               FROM {$this->table}
+               WHERE MATCH (
+               name, description )
+               AGAINST (
+              ?
+              ) LIMIT 1000";
 
         if ($stmt = $this->mysqliInstanse->prepare($query) )  {
-            $stmt->bind_param("ss", $searchString, $searchString);
+            $stmt->bind_param("s", $searchString);
         } else {
             throw new Exception("Не удалось подготовить SQL запрос при попытке поиска по сайту");
         }
         if (!$stmt->execute()) {
            throw new Exception("Не удалось выполнить поиск (" . $stmt->errno . ") " . $stmt->error);
         } else {
-           $stmt->store_result();
-
-           $num = $stmt->num_rows;
+           $stmt->bind_result($num);
+           $stmt->fetch();
            $stmt->close();
            return $num;
     }
