@@ -18,8 +18,8 @@ $app = new \Slim\Slim( array(
     'uploadDir' => $uploadDir,
     'domainName' => $domainName,
     'filesPerPage' => $filesPerPage,
-    'maxFileSize' => $maxFileSize
-    //'debug' => false
+    'maxFileSize' => $maxFileSize,
+    'debug' => false
     ));
 
 function h($text) {
