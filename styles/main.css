@@ -152,6 +152,14 @@ div.helper {
 .modal {
 	display: none;
 }
+#myModal {
+	width: auto;
+}
+#myModal .alert {
+ width: auto;
+ max-width: 100%;
+ margin: 10px;
+}
 button.edit, #delete_file {
 	float: left;
 	margin-left: 10px;

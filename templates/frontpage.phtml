@@ -1,5 +1,5 @@
 <?php
-//session_start();
+session_start();
 include 'header.phtml';
 ?>
  <div class="content front">
@@ -8,10 +8,10 @@ include 'header.phtml';
     <p>Выберите файл, которым хотите поделиться:</p>
   -->
     <form id="upload" action="/upload" method="post" enctype="multipart/form-data" class="form-inline">
-      <input type="hidden" name="<?= ini_get("session.upload_progress.name") ?>" value="d-loadme">
+      <input type="hidden" name="<?= ini_get("session.upload_progress.name"); ?>" value="d-loadme">
       <input type="hidden" name="MAX_FILE_SIZE" value="<?= $maxFileSize ?>">
       <input type="file" name="userfile" id="userfile"/>
-      <button type="submit" class="btn btn-primary" data-loading-text="Отправка...">Отправить</button>
+      <button type="submit" class="btn btn-primary" data-loading-text="Отправка..." data-complete-text="Готово!" >Отправить</button>
     </form>
     <? if(isset($flash['error'])): ?>
       <div class="alert alert-error fade in">
@@ -23,12 +23,29 @@ include 'header.phtml';
         Максимальный размер загружаемого файла - <?= round($maxFileSize/(1024*1024)) ?> Mб 
       </div>
     <? endif; ?>
-    <div id="upload_progress" class="progress progress-striped active">
-    <div class="bar"></div>
+    <div class="progress progress-striped active">
+    <div class="bar" style="width: 0;"></div>
     </div>
+        <span class="percents">0%</span>
   </div>
-<script type="text/javascript">
+</div>
 
+    </div>
+
+  </div>
+
+  <style type="text/css">
+.progress, .percents {
+  display: none;
+}
+
+.progress {
+  width: 50%;
+  margin: auto;
+}
+  </style>
+<script type="text/javascript">
+/*
 $(function() {
  $('#upload').on("submit", function(e) {
    if ($('input[type="file"]', this).val() == "") {
@@ -45,44 +62,54 @@ $(function() {
    }
  });
 });
-/*
-$.ajaxSetup({ cache: false });
+*/
 
+$.ajaxSetup({ cache: false });
 var t;
 progress = function(){
     $.ajax({
         url: '/upload-progress',
         dataType: 'json',
         cache: false,
-        data: new Date().getTime(),
-        success: function(data){
-            if(data['percent']) {
-                 $('.bar', '#upload-progress').css('width', data['percent']+'%');
+        success: function(result){
+            if(result['percent']) {
+              $(".bar").css("width", Math.ceil(result.percent)+"%");
+              $(".percents").text(Math.ceil(result.percent)+"%");
+                }
             }
-        }
-    });
-}
-
+        });
+    };
 $(function() {
     $('#upload').attr('action', '/upload/async'); 
     $('#upload').ajaxForm({
         type: 'POST',
-        success: function(data) { 
-            clearTimeout(t);
-            $('button[type="submit"]').button('reset');
-             alert("Done!");
+        dataType: "json",
+        success: function(result) { 
+            clearInterval(t);
+            $(".bar").css("width", "100%");
+            $(".percents").text("100%");
+            $('button[type="submit"]').button('complete');
+            window.location.replace("/f/"+result['id']);
         },
-        beforeSubmit: function() {
-            $('button[type="submit"]').button('loading');
-            $('#upload_progress').show();
-            t = setInterval("progress()", 200);
+        beforeSubmit: function(arr, form, options) {
+             if ($('input[type="file"]', form).val() == "") {
+               if ($('.content').has('.alert-error').length == 0) {
+                 $('<div class="alert alert-error fade in" style="display: none;"></div>')
+                 .append('<a href="#" class="close" data-dismiss="alert">&times;</a>')
+                   .append('<strong>Ошибка!</strong> Вы не выбрали файл.')
+                     .insertAfter(form).slideDown();
+               }
+            return false;
+            } else {
+                $(".progress, .percents").show();
+                $('button[type="submit"]').button('loading');
+                $('input[type="file"]').attr("disabled", "");
+                t = setInterval("progress()", 1000);
+          }
         }
    });
-
 });
-*/
 </script>
-
 <? 
 include 'footer.html'; 
 ?>

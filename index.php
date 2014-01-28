@@ -62,7 +62,7 @@ $app->container->singleton('SearchGateway', function() use ($app) {
 });
 
 $app->get('/', function () use ($app) {
-  session_start();
+  //session_start();
   $flash = isset($_SESSION['slim.flash']) ? $_SESSION['slim.flash'] : null;
     $app->render('frontpage.phtml', array(
         "flash" => $flash,
@@ -73,7 +73,6 @@ $app->get('/', function () use ($app) {
 });
 
 $app->post('/upload(/:async)', function ($async=false) use ($app) {
-
     $uploader = new Uploader($app->config('uploadDir'), $app->FileGateway);
     $id = $uploader->uploadFile($_FILES);
 
@@ -196,16 +195,6 @@ $app->post('/modify/:id', function($id) use ($app) {
   $description = $app->request->post('description');
   if (isset($_SESSION['fileId'])
    && array_key_exists("$id", $_SESSION['fileId']) ) {
-    /*
-    $isSet = $app->FileGateway->getDescription($id);
-    if (!$isSet) {
-    $app->FileGateway->addDescription($id, $description );
-    $message = "Описание файла успешно добавлено.";
-    } else {
-    $app->FileGateway->changeDescription($id, $description);
-    $message = 'Описание файла успешно изменено.';
-    }
-    */
   $app->FileGateway->changeDescription($id, $description );
   $app->flash('success', 'Описание файла успешно обновлено');
   } 

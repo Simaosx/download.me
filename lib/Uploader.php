@@ -51,7 +51,7 @@ class Uploader {
       $data = array();
       if(isset($_SESSION['upload_progress_d-loadme']) && is_array($_SESSION['upload_progress_d-loadme'])) {
         $percent = ($_SESSION['upload_progress_d-loadme']['bytes_processed'] * 100 ) / $_SESSION['upload_progress_d-loadme']['content_length'];
-        $percent = round($percent);
+        //$percent = round($percent);
         $data = array(
          'percent' => $percent,
          'content_length' => $_SESSION['upload_progress_d-loadme']['content_length'],
@@ -76,7 +76,6 @@ class Uploader {
 
     public function uploadFile(array $files) {
         session_start();
-
         $userfile = $files['userfile'];
         if (!$userfile) {
             $this->errorMessage = "Вы не выбрали файл.";
@@ -97,7 +96,6 @@ class Uploader {
 
         $encName = $this->encodeName($userfile);
 
-        //var_dump($name);
         //подготовим информацию о файле, для передачи шлюзу соединения с бд
         $fileMetaData = $this->getFileInfo($userfile, $name, $encName);
         
