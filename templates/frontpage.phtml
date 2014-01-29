@@ -8,10 +8,14 @@ include 'header.phtml';
     <p>Выберите файл, которым хотите поделиться:</p>
   -->
     <form id="upload" action="/upload" method="post" enctype="multipart/form-data" class="form-inline">
+        <p>Выберите файл </p>
       <input type="hidden" name="<?= ini_get("session.upload_progress.name"); ?>" value="d-loadme">
       <input type="hidden" name="MAX_FILE_SIZE" value="<?= $maxFileSize ?>">
       <input type="file" name="userfile" id="userfile"/>
       <button type="submit" class="btn btn-primary" data-loading-text="Отправка..." data-complete-text="Готово!" >Отправить</button>
+            <div id="dropZone">
+        или просто перетащите файл сюда.
+      </div>
     </form>
     <? if(isset($flash['error'])): ?>
       <div class="alert alert-error fade in">
@@ -35,6 +39,41 @@ include 'header.phtml';
   </div>
 
   <style type="text/css">
+
+#dropZone {    
+    color: #555;
+    font-size: 18px;
+    text-align: center;    
+    
+    width: 400px;
+    padding: 50px 0;
+    margin: 50px auto;
+    
+    background: #eee;
+    border: 1px solid #ccc;
+    
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+}
+
+#dropZone.hover {
+    background: #ddd;
+    border-color: #aaa;
+}
+
+#dropZone.error {
+    background: #faa;
+    border-color: #f00;
+}
+
+#dropZone.drop {
+    background: rgb(217, 237, 247);
+    border-color: rgb(188, 232, 241);
+    color: #6CB5FF;
+}
+
+
 .progress, .percents {
   display: none;
 }
@@ -43,7 +82,9 @@ include 'header.phtml';
   width: 50%;
   margin: auto;
 }
+
   </style>
+
 <script type="text/javascript">
 /*
 $(function() {
@@ -64,9 +105,12 @@ $(function() {
 });
 */
 
-$.ajaxSetup({ cache: false });
-var t;
-progress = function(){
+$(function() {
+
+
+  $.ajaxSetup({ cache: false });
+  var t;
+  progress = function(){
     $.ajax({
         url: '/upload-progress',
         dataType: 'json',
@@ -79,7 +123,117 @@ progress = function(){
             }
         });
     };
-$(function() {
+
+    var $dropZone = $('#dropZone'),
+        maxFileSize = 50000000; // максимальный размер фалйа - 1 мб.
+    
+    $('input[type="file"]', '#upload').change(function(e) {
+      if ( $(e.target).val() != "") {
+        $dropZone.hide();
+      } else {
+        $dropZone.show();
+      }
+    });
+
+    // Проверка поддержки браузером
+    if (typeof(window.FileReader) == 'undefined') {
+        $dropZone.hide(); // drag and drop не поддерживается браузером скрываем блок
+    }
+    
+    // Добавляем класс hover при наведении
+    $dropZone[0].ondragover = function() {
+        $dropZone.addClass('hover');
+        return false;
+    };
+    
+    // Убираем класс hover
+    $dropZone[0].ondragleave = function() {
+        $dropZone.removeClass('hover');
+        return false;
+    };
+    
+    // Обрабатываем событие Drop
+    $dropZone[0].ondrop = function(event) {
+        event.preventDefault();
+        $dropZone.removeClass('hover');
+        $dropZone.addClass('drop');
+        
+        var file = event.dataTransfer.files[0];
+
+        //console.log(file);
+        
+        // Проверяем размер файла
+        if (file.size > maxFileSize) {
+            $dropZone.text('Файл слишком большой!');
+            $dropZone.addClass('error');
+            return false;
+        }
+    
+         // Создаем запрос
+  /*       
+        var xhr = new XMLHttpRequest();
+        xhr.upload.addEventListener('progress', uploadProgress, false);
+        xhr.onreadystatechange = stateChange;
+        xhr.open('POST', '/upload/async');
+        xhr.setRequestHeader('X-FILE-NAME', file.name);
+        xhr.send(file);
+*/     
+       $('input, button, p', '#upload').hide();
+       $dropZone.text("Идёт загрузка...");
+
+                       $(".progress, .percents").show();
+                $('button[type="submit"]').button('loading');
+                $('input[type="file"]').attr("disabled", "");
+                t = setInterval("progress()", 1000);
+
+       var data = new FormData($('#upload')[0]);
+       data.append("userfile", file);
+        
+        $.ajax({
+          type: "POST",
+          url: '/upload/async',
+          data: data,
+          dataType: "json",
+          contentType: false,
+          processData: false,
+          complete: function() {
+            clearInterval(t);
+            $(".bar").css("width", "100%");
+            $(".percents").text("100%");
+            $('button[type="submit"]').button('complete');
+          },
+          success: function(result) {
+            console.log(result.id);
+            $dropZone.text('Загрузка успешно завершена!');
+            window.location.replace("/f/"+result['id']);
+          },
+          error: function() {
+            $dropZone.text('Произошла ошибка!');
+            $dropZone.removeClass('drop').addClass('error');
+          }
+        }
+        );
+    };
+    /*
+
+    // Показываем процент загрузки
+    function uploadProgress(event) {
+        var percent = parseInt(event.loaded / event.total * 100);
+        $dropZone.text('Загрузка: ' + percent + '%');
+    }
+    
+    // Пост обрабочик
+    function stateChange(event) {
+        if (event.target.readyState == 4) {
+            if (event.target.status == 200) {
+                $dropZone.text('Загрузка успешно завершена!');
+            } else {
+                $dropZone.text('Произошла ошибка!');
+                $dropZone.removeClass('drop').addClass('error');
+            }
+        }
+    }
+*/
     $('#upload').attr('action', '/upload/async'); 
     $('#upload').ajaxForm({
         type: 'POST',

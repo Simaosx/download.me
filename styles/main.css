@@ -33,7 +33,7 @@ h2+p {
 }
 form#upload {
 	width: auto;
-	margin: 200px auto 20px;
+	margin: 0 auto 20px;
 	text-align: center;
 }
 p.error {
@@ -45,6 +45,9 @@ input+p {
 }
 form>p{
 	margin-top: 10px;
+}
+.content.front {
+	padding-top: 150px;
 }
 
 .details.content, .content.errorForm, .content.files, .content.search, .content.rules {

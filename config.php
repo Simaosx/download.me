@@ -6,6 +6,6 @@ $database = array(
     'name' => 'downloadme');
 $uploadDir = 'uploads';
 
-$domainName = "download.me";
+$domainName = "d-loadme.ru";
 $filesPerPage = 30;
-$maxFileSize = 500000000;
+$maxFileSize = 50000000;

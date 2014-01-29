@@ -76,6 +76,8 @@ class Uploader {
 
     public function uploadFile(array $files) {
         session_start();
+        //var_dump($files);
+        //die();
         $userfile = $files['userfile'];
         if (!$userfile) {
             $this->errorMessage = "Вы не выбрали файл.";
