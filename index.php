@@ -26,7 +26,6 @@ function h($text) {
     return htmlspecialchars($text, ENT_QUOTES);
 }
 
-//делаем объект mysqli синглтоном с помощью средств Slim
 $app->container->singleton('mysqli', function() use($app) {
     $db = $app->config('dbSettings');
     $host = $db['host'];
@@ -47,22 +46,18 @@ $app->container->singleton('getID3', function() use ($app) {
   return new getID3;
 });
 
-//делаем объект FileGateway синглтоном, чтобы не создавать его каждый раз,
-//когда требуется обращаться к бд.
+//делаем объект FileGateway синглтоном
 $app->container->singleton('FileGateway', function() use ($app) {
     return new FileGateway($app->mysqli);
 });
-//то же самое со шлюзом для комментариев
 $app->container->singleton('CommentGateway', function() use ($app) {
     return new CommentGateway($app->mysqli);
 });
-
 $app->container->singleton('SearchGateway', function() use ($app) {
   return new SearchGateway($app->mysqli);
 });
 
 $app->get('/', function () use ($app) {
-  //session_start();
   $flash = isset($_SESSION['slim.flash']) ? $_SESSION['slim.flash'] : null;
     $app->render('frontpage.phtml', array(
         "flash" => $flash,
@@ -75,7 +70,6 @@ $app->get('/', function () use ($app) {
 $app->post('/upload(/:async)', function ($async=false) use ($app) {
     $uploader = new Uploader($app->config('uploadDir'), $app->FileGateway);
     $id = $uploader->uploadFile($_FILES);
-
     if ($id && !$async) {
       $app->response->redirect("/f/{$id}", 303);
     } elseif ($id && $async) {
@@ -130,7 +124,6 @@ $app->get('/f/thumb/:res/:mode/:src+', function ($res, $mode, $src) use ($app) {
 $app->get('/f/:id', function ($id) use ($app) {
   session_start();
   $flash = $_SESSION['slim.flash'];
-  //var_dump($flash);
     $file = $app->FileGateway->getData($id);
     $comments = $app->CommentGateway->getAllFileComments($id);
     if($file) {
@@ -174,7 +167,6 @@ $app->post('/comment', function () use ($app) {
       "title" => "Заполните все поля"
       ));
   } else {
-  //рендерим details с комментами (пока без ajax)
   $app->response->redirect("/f/{$requestVars['fileId']}", 303);
 }
 });
