@@ -10,7 +10,7 @@
   <? if ($comment->parentId): ?>
    <span class="parent_comment_ref">&gt;&gt;<?= $comment->parentId ?></span><br>
   <? endif; ?>
-        <?= h($comment->body) ?></p>
+        <?= nl2br(h($comment->body)) ?></p>
     </div>
     <a class="reply">Ответить</a>
   </div>

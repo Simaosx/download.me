@@ -59,7 +59,7 @@ $(function() {
   <hr>
 <? endif; ?>
 <? if ($file->description): ?>
-<p><?= h($file->description) ?></p>
+<p><?= nl2br(h($file->description)) ?></p>
 <? endif; ?>
 
 <? if (isset($flash['success'])): ?>
