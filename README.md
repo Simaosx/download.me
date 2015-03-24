@@ -1,6 +1,6 @@
 Download.me
 ===========
-This is simplefile exchanging service (much like rghost). This is my first experienсe in building php5-powered web-applications. 
+This is simple file exchanging service (much like rghost).
 
 Install (order of steps doesn't matter):
 1. create db & user and change config accordingly
