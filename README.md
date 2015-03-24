@@ -2,9 +2,8 @@ Download.me
 ===========
 This is simple file exchanging service (much like rghost).
 
-Install (order of steps doesn't matter):
-1. create db & user and change config accordingly
-2. install dependencies with `composer install`
+Install:
+1. create db & user and change `config.php` accordingly
 
 Features :
 ---------
