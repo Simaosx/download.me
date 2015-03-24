@@ -1,5 +1,4 @@
 <?php
-error_reporting(-1);
 mb_internal_encoding('utf-8');
 
 require 'vendor/slim/Slim/Slim.php';
